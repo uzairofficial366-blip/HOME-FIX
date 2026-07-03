@@ -118,12 +118,12 @@ function AuthPage() {
                       <label className="flex cursor-pointer items-center gap-2 rounded-lg border border-border p-3 has-[[data-state=checked]]:border-brand has-[[data-state=checked]]:bg-brand-soft">
                         <RadioGroupItem value="homeowner" />
                         <User2 className="h-4 w-4" />
-                        <span className="text-sm font-medium">Hire pros</span>
+                        <span className="text-sm font-medium">Customer</span>
                       </label>
                       <label className="flex cursor-pointer items-center gap-2 rounded-lg border border-border p-3 has-[[data-state=checked]]:border-brand has-[[data-state=checked]]:bg-brand-soft">
                         <RadioGroupItem value="provider" />
                         <Wrench className="h-4 w-4" />
-                        <span className="text-sm font-medium">Offer services</span>
+                        <span className="text-sm font-medium">Service Provider</span>
                       </label>
                     </RadioGroup>
                   </div>

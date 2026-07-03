@@ -3,196 +3,321 @@ import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { meQueryOptions } from "@/components/nav";
-import { listPendingVerifications, adminVerifyProvider } from "@/lib/provider.functions";
+import {
+  getDashboardStats,
+  getRecentActivity,
+} from "@/lib/admin.functions";
 import { Container, PageHeader, StatusBadge } from "@/components/app-shell";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { ShieldCheck, Eye } from "lucide-react";
+import {
+  LayoutDashboard,
+  Users,
+  Briefcase,
+  Clock,
+  CheckCircle,
+  DollarSign,
+  TrendingUp,
+  Activity,
+  ArrowRight,
+} from "lucide-react";
 import { toast } from "sonner";
+import { Link } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/admin")({
-  head: () => ({ meta: [{ title: "Admin — HomeFixr" }] }),
-  component: AdminPage,
+  head: () => ({ meta: [{ title: "Admin Dashboard — HomeFixr" }] }),
+  component: AdminDashboard,
 });
 
-type VerificationDocument = {
-  id: number;
-  document_type: string;
-  original_name: string;
-  file_url: string;
+type StatCard = {
+  title: string;
+  value: string | number;
+  icon: React.ElementType;
+  color: string;
+  link?: string;
 };
 
-type PendingVerification = {
-  user_id: number;
-  name: string;
-  email: string;
-  verification_status: string;
-  verification_notes: string;
-  submitted_at?: string;
-  documents?: VerificationDocument[];
-};
-
-function AdminPage() {
+function AdminDashboard() {
   const userQuery = useQuery(meQueryOptions());
-  const qc = useQueryClient();
-  const { data: providers = [], isLoading } = useQuery<PendingVerification[]>({
-    queryKey: ["pendingVerifications"],
-    queryFn: () => listPendingVerifications(),
+  const { data: stats, isLoading: statsLoading } = useQuery({
+    queryKey: ["dashboardStats"],
+    queryFn: () => getDashboardStats(),
   });
-  const doVerify = useServerFn(adminVerifyProvider);
+  const { data: activities = [], isLoading: activitiesLoading } = useQuery({
+    queryKey: ["recentActivity"],
+    queryFn: () => getRecentActivity(),
+  });
 
-  if (userQuery.data && userQuery.data.role !== "admin") return <Navigate to="/dashboard" />;
+  if (userQuery.data && userQuery.data.role !== "admin") {
+    return <Navigate to="/dashboard" />;
+  }
+
+  const statCards: StatCard[] = [
+    {
+      title: "Total Users",
+      value: stats?.totalUsers ?? 0,
+      icon: Users,
+      color: "text-blue-500",
+      link: "/admin/users",
+    },
+    {
+      title: "Total Providers",
+      value: stats?.totalProviders ?? 0,
+      icon: Briefcase,
+      color: "text-purple-500",
+      link: "/admin/providers",
+    },
+    {
+      title: "Pending Verifications",
+      value: stats?.pendingVerifications ?? 0,
+      icon: Clock,
+      color: "text-yellow-500",
+      link: "/admin/verifications",
+    },
+    {
+      title: "Active Jobs",
+      value: stats?.activeJobs ?? 0,
+      icon: Activity,
+      color: "text-green-500",
+      link: "/admin/jobs",
+    },
+    {
+      title: "Active Bids",
+      value: stats?.activeBids ?? 0,
+      icon: TrendingUp,
+      color: "text-indigo-500",
+      link: "/admin/bids",
+    },
+    {
+      title: "Completed Jobs",
+      value: stats?.completedJobs ?? 0,
+      icon: CheckCircle,
+      color: "text-emerald-500",
+      link: "/admin/jobs",
+    },
+    {
+      title: "Escrow Balance",
+      value: `$${(stats?.escrowBalance ?? 0).toFixed(2)}`,
+      icon: DollarSign,
+      color: "text-orange-500",
+      link: "/admin/payments",
+    },
+    {
+      title: "Revenue",
+      value: `$${(stats?.revenue ?? 0).toFixed(2)}`,
+      icon: TrendingUp,
+      color: "text-green-600",
+      link: "/admin/payments",
+    },
+  ];
+
+  const getActivityIcon = (type: string) => {
+    switch (type) {
+      case "user_signup":
+        return <Users className="h-4 w-4 text-blue-500" />;
+      case "job_created":
+        return <Briefcase className="h-4 w-4 text-green-500" />;
+      case "payment":
+        return <DollarSign className="h-4 w-4 text-orange-500" />;
+      default:
+        return <Activity className="h-4 w-4 text-gray-500" />;
+    }
+  };
+
+  const getActivityLabel = (type: string) => {
+    switch (type) {
+      case "user_signup":
+        return "New user signup";
+      case "job_created":
+        return "Job created";
+      case "payment":
+        return "Payment received";
+      default:
+        return type;
+    }
+  };
 
   return (
     <Container>
       <PageHeader
-        title="Admin — Verification Queue"
-        subtitle="Review and approve or reject provider identity submissions."
-        action={<StatusBadge status="pending" />}
+        title="Dashboard"
+        subtitle="Welcome to HomeFixr Admin Panel"
+        action={
+          <div className="flex items-center gap-2">
+            <LayoutDashboard className="h-5 w-5 text-muted-foreground" />
+          </div>
+        }
       />
 
-      {isLoading ? (
-        <p className="my-10 text-center text-sm text-muted-foreground">Loading…</p>
-      ) : providers.length === 0 ? (
-        <div className="my-10 rounded-xl border border-dashed border-border p-12 text-center">
-          <ShieldCheck className="mx-auto mb-3 h-8 w-8 text-success" />
-          <p className="text-lg font-semibold">All clear</p>
-          <p className="text-sm text-muted-foreground">No pending verifications.</p>
+      {statsLoading ? (
+        <div className="my-10 text-center">
+          <p className="text-sm text-muted-foreground">Loading dashboard...</p>
         </div>
       ) : (
-        <div className="my-6 grid gap-4">
-          {providers.map((p) => (
-            <VerificationCard
-              key={p.user_id}
-              provider={p}
-              onDecision={async (decision, notes) => {
-                try {
-                  await doVerify({ data: { providerId: p.user_id, decision, notes } });
-                  toast.success(`Provider ${decision}`);
-                  qc.invalidateQueries({ queryKey: ["pendingVerifications"] });
-                } catch (e) {
-                  toast.error((e as Error).message);
-                }
-              }}
-            />
-          ))}
-        </div>
+        <>
+          <div className="my-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {statCards.map((stat) => (
+              <Card
+                key={stat.title}
+                className="border-border/50 bg-background/50 backdrop-blur transition-all hover:shadow-lg"
+              >
+                <CardContent className="p-6">
+                  <div className="flex items-start justify-between">
+                    <div className="space-y-2">
+                      <p className="text-sm font-medium text-muted-foreground">
+                        {stat.title}
+                      </p>
+                      <p className="text-3xl font-bold tracking-tight">
+                        {stat.value}
+                      </p>
+                    </div>
+                    <div className={`rounded-lg bg-muted/50 p-3 ${stat.color}`}>
+                      <stat.icon className="h-5 w-5" />
+                    </div>
+                  </div>
+                  {stat.link && (
+                    <Link to={stat.link} className="mt-4 block">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="w-full justify-between"
+                      >
+                        View details
+                        <ArrowRight className="h-4 w-4" />
+                      </Button>
+                    </Link>
+                  )}
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+
+          <div className="my-6 grid gap-6 lg:grid-cols-2">
+            <Card className="border-border/50">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Activity className="h-5 w-5" />
+                  Recent Activity
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {activitiesLoading ? (
+                  <p className="text-sm text-muted-foreground">Loading...</p>
+                ) : activities.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">No recent activity</p>
+                ) : (
+                  <div className="space-y-3">
+                    {activities.slice(0, 10).map((activity) => (
+                      <div
+                        key={`${activity.type}-${activity.id}`}
+                        className="flex items-start gap-3 rounded-lg border border-border/50 p-3 transition-colors hover:bg-muted/30"
+                      >
+                        <div className="mt-0.5 rounded-lg bg-muted/50 p-2">
+                          {getActivityIcon(activity.type)}
+                        </div>
+                        <div className="flex-1 space-y-1">
+                          <p className="text-sm font-medium">
+                            {getActivityLabel(activity.type)}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {activity.name} · {activity.email}
+                          </p>
+                          {activity.details && (
+                            <p className="text-xs text-muted-foreground">
+                              {activity.type === "payment"
+                                ? `Amount: $${activity.details}`
+                                : activity.details}
+                            </p>
+                          )}
+                        </div>
+                        <div className="text-right text-xs text-muted-foreground">
+                          {new Date(activity.created_at).toLocaleDateString()}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            <Card className="border-border/50">
+              <CardHeader>
+                <CardTitle>Quick Actions</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <Link to="/admin/users" className="block">
+                  <Card className="border-border/50 transition-all hover:shadow-md">
+                    <CardContent className="p-4">
+                      <div className="flex items-center gap-3">
+                        <div className="rounded-lg bg-blue-500/10 p-3">
+                          <Users className="h-5 w-5 text-blue-500" />
+                        </div>
+                        <div>
+                          <p className="font-semibold">Manage Users</p>
+                          <p className="text-xs text-muted-foreground">
+                            View, edit, suspend, or delete users
+                          </p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </Link>
+                <Link to="/admin/providers" className="block">
+                  <Card className="border-border/50 transition-all hover:shadow-md">
+                    <CardContent className="p-4">
+                      <div className="flex items-center gap-3">
+                        <div className="rounded-lg bg-purple-500/10 p-3">
+                          <Briefcase className="h-5 w-5 text-purple-500" />
+                        </div>
+                        <div>
+                          <p className="font-semibold">Manage Providers</p>
+                          <p className="text-xs text-muted-foreground">
+                            Approve, verify, and manage providers
+                          </p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </Link>
+                <Link to="/admin/jobs" className="block">
+                  <Card className="border-border/50 transition-all hover:shadow-md">
+                    <CardContent className="p-4">
+                      <div className="flex items-center gap-3">
+                        <div className="rounded-lg bg-green-500/10 p-3">
+                          <Activity className="h-5 w-5 text-green-500" />
+                        </div>
+                        <div>
+                          <p className="font-semibold">Manage Jobs</p>
+                          <p className="text-xs text-muted-foreground">
+                            View, cancel, and assign jobs
+                          </p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </Link>
+                <Link to="/admin/settings" className="block">
+                  <Card className="border-border/50 transition-all hover:shadow-md">
+                    <CardContent className="p-4">
+                      <div className="flex items-center gap-3">
+                        <div className="rounded-lg bg-orange-500/10 p-3">
+                          <TrendingUp className="h-5 w-5 text-orange-500" />
+                        </div>
+                        <div>
+                          <p className="font-semibold">Settings</p>
+                          <p className="text-xs text-muted-foreground">
+                            Configure site settings and preferences
+                          </p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </Link>
+              </CardContent>
+            </Card>
+          </div>
+        </>
       )}
     </Container>
-  );
-}
-
-function VerificationCard({
-  provider: p,
-  onDecision,
-}: {
-  provider: PendingVerification;
-  onDecision: (decision: "verified" | "rejected", notes?: string) => Promise<void>;
-}) {
-  const [notes, setNotes] = useState("");
-  const [busy, setBusy] = useState(false);
-
-  const handle = async (decision: "verified" | "rejected") => {
-    if (decision === "rejected" && !notes.trim()) {
-      toast.error("Please provide a rejection reason.");
-      return;
-    }
-    setBusy(true);
-    await onDecision(decision, notes || undefined);
-    setBusy(false);
-  };
-
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center justify-between">
-          <span>{p.name}</span>
-          <StatusBadge status={p.verification_status} />
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="grid gap-2 text-sm sm:grid-cols-2">
-          <div>
-            <span className="text-muted-foreground">Email:</span> {p.email}
-          </div>
-          <div>
-            <span className="text-muted-foreground">Provider ID:</span> {p.user_id}
-          </div>
-          <div>
-            <span className="text-muted-foreground">Submitted:</span>{" "}
-            {p.submitted_at ? new Date(p.submitted_at).toLocaleString() : "—"}
-          </div>
-          <div>
-            <span className="text-muted-foreground">Notes submitted:</span>{" "}
-            {p.verification_notes || "—"}
-          </div>
-        </div>
-
-        <div>
-          <p className="mb-2 text-xs font-medium text-muted-foreground">Uploaded documents</p>
-          {(p.documents ?? []).length > 0 ? (
-            <div className="space-y-3">
-              {(p.documents ?? []).map((doc) => (
-                <div key={doc.id} className="rounded-lg border border-border p-3">
-                  <div className="flex items-center gap-2 text-sm">
-                    <Eye className="h-3.5 w-3.5 text-muted-foreground" />
-                    <span className="font-medium">{doc.document_type}</span>
-                    <span className="text-muted-foreground">— {doc.original_name}</span>
-                  </div>
-                  {/* Inline preview for images stored as data URLs */}
-                  {doc.file_url.startsWith("data:image") ? (
-                    <img
-                      src={doc.file_url}
-                      alt={doc.document_type}
-                      className="mt-2 max-h-48 rounded border border-border object-contain"
-                    />
-                  ) : doc.file_url.startsWith("data:application/pdf") ? (
-                    <p className="mt-1 text-xs text-muted-foreground">
-                      PDF document (cannot preview inline)
-                    </p>
-                  ) : (
-                    <a
-                      href={doc.file_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="mt-1 inline-flex items-center gap-1 text-xs text-brand hover:underline"
-                    >
-                      <Eye className="h-3 w-3" /> View document
-                    </a>
-                  )}
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="text-sm text-muted-foreground">No documents uploaded yet.</p>
-          )}
-        </div>
-
-        <div>
-          <Label className="text-xs">Rejection reason (required if rejecting)</Label>
-          <Textarea
-            rows={2}
-            placeholder="e.g. Document is blurry or expired."
-            value={notes}
-            onChange={(e) => setNotes(e.target.value)}
-          />
-        </div>
-
-        <div className="flex gap-3">
-          <Button
-            disabled={busy}
-            onClick={() => handle("verified")}
-            className="bg-success text-success-foreground hover:bg-success/90"
-          >
-            {busy ? "…" : "Approve"}
-          </Button>
-          <Button disabled={busy} variant="destructive" onClick={() => handle("rejected")}>
-            {busy ? "…" : "Reject"}
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
   );
 }

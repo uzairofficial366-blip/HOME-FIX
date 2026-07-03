@@ -126,7 +126,6 @@ function ProviderPage() {
       if (p.id_document_url) {
         const docUrl = p.id_document_url as string;
         setVform((f) => ({ ...f, idDocumentUrl: docUrl }));
-        // Only show image preview for data URLs or image URLs, not PDFs
         if (!docUrl.includes("application/pdf")) setPreviewUrl(docUrl);
       }
     }
@@ -147,13 +146,12 @@ function ProviderPage() {
     }
 
     setSelectedFile(file);
-    // Show local preview immediately for images
     if (file.type.startsWith("image/")) {
       const reader = new FileReader();
       reader.onload = (ev) => setPreviewUrl(ev.target?.result as string);
       reader.readAsDataURL(file);
     } else {
-      setPreviewUrl("application/pdf"); // sentinel to show PDF indicator
+      setPreviewUrl("application/pdf");
     }
 
     setUploadProgress(0);
@@ -175,7 +173,6 @@ function ProviderPage() {
       });
       setUploadProgress(100);
       setVform((f) => ({ ...f, idDocumentUrl: result.fileUrl }));
-      // Update preview with the stored data URL
       if (file.type.startsWith("image/")) setPreviewUrl(result.fileUrl);
       toast.success("Document uploaded successfully.");
       await qc.invalidateQueries({ queryKey: ["providerProfile"] });
@@ -227,12 +224,16 @@ function ProviderPage() {
       />
 
       {/* Tabs */}
-      <div className="my-6 flex gap-1 rounded-lg border border-border bg-muted/30 p-1">
+      <div className="my-6 flex gap-1 rounded-xl border border-border bg-muted/30 p-1">
         {(["profile", "verification", "jobs"] as const).map((t) => (
           <button
             key={t}
             onClick={() => setTab(t)}
-            className={`flex-1 rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${tab === t ? "bg-background shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
+            className={`flex-1 rounded-lg px-3 py-2 text-sm font-semibold transition-all ${
+              tab === t
+                ? "bg-white shadow-sm text-primary"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
           >
             {t === "profile" ? "Profile" : t === "verification" ? "Verification" : "Jobs Applied"}
           </button>
@@ -240,9 +241,9 @@ function ProviderPage() {
       </div>
 
       {tab === "profile" && (
-        <Card>
+        <Card className="shadow-card">
           <CardHeader>
-            <CardTitle>About you</CardTitle>
+            <CardTitle className="text-xl">About you</CardTitle>
           </CardHeader>
           <CardContent>
             <form
@@ -268,9 +269,9 @@ function ProviderPage() {
                   setBusy(false);
                 }
               }}
-              className="space-y-4"
+              className="space-y-5"
             >
-              <div className="flex flex-wrap items-center gap-4 rounded-lg border border-border p-4">
+              <div className="flex flex-wrap items-center gap-4 rounded-xl border-2 border-border p-4">
                 <Avatar className="h-20 w-20">
                   <AvatarImage src={form.profilePictureUrl} alt="Provider profile picture" />
                   <AvatarFallback className="text-lg font-semibold">
@@ -278,7 +279,7 @@ function ProviderPage() {
                   </AvatarFallback>
                 </Avatar>
                 <div className="min-w-0 flex-1">
-                  <Label htmlFor="profile-picture">Profile picture</Label>
+                  <Label htmlFor="profile-picture" className="text-base font-semibold">Profile picture</Label>
                   <p className="mt-1 text-xs text-muted-foreground">
                     Displayed to homeowners when they review your bid.
                   </p>
@@ -287,6 +288,7 @@ function ProviderPage() {
                   type="button"
                   variant="outline"
                   onClick={() => profilePhotoRef.current?.click()}
+                  className="border-primary text-primary hover:bg-accent-orange hover:text-white"
                 >
                   <Camera className="mr-2 h-4 w-4" />
                   Upload photo
@@ -301,20 +303,22 @@ function ProviderPage() {
                 />
               </div>
               <div>
-                <Label>Bio</Label>
+                <Label htmlFor="bio" className="text-base font-semibold">Bio</Label>
                 <Textarea
+                  id="bio"
                   rows={3}
                   value={form.bio}
                   onChange={(e) => setForm({ ...form, bio: e.target.value })}
+                  className="mt-2"
                 />
               </div>
               <div>
-                <Label className="mb-2 block">Categories you serve</Label>
+                <Label className="mb-3 block text-base font-semibold">Categories you serve</Label>
                 <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
                   {CATEGORIES.map((c) => (
                     <label
                       key={c}
-                      className="flex items-center gap-2 rounded-lg border border-border p-2 text-sm"
+                      className="flex items-center gap-2 rounded-lg border-2 border-border p-3 text-sm cursor-pointer hover:border-accent-orange transition-colors"
                     >
                       <Checkbox
                         checked={form.categories.includes(c)}
@@ -327,14 +331,14 @@ function ProviderPage() {
                           })
                         }
                       />
-                      {c}
+                      <span className="font-medium">{c}</span>
                     </label>
                   ))}
                 </div>
               </div>
-              <div className="flex items-center justify-between gap-4 rounded-lg border border-border p-3">
+              <div className="flex items-center justify-between gap-4 rounded-xl border-2 border-border p-4">
                 <div>
-                  <Label htmlFor="isAvailable">Available for new job requests</Label>
+                  <Label htmlFor="isAvailable" className="text-base font-semibold">Available for new job requests</Label>
                   <p className="mt-1 text-xs text-muted-foreground">
                     Receive broadcasts for matching service categories.
                   </p>
@@ -345,27 +349,31 @@ function ProviderPage() {
                   onCheckedChange={(checked) => setForm({ ...form, isAvailable: checked })}
                 />
               </div>
-              <div className="grid gap-3 sm:grid-cols-2">
+              <div className="grid gap-4 sm:grid-cols-2">
                 <div>
-                  <Label>Default hourly rate (PKR)</Label>
+                  <Label htmlFor="hourlyRate" className="text-base font-semibold">Default hourly rate (PKR)</Label>
                   <Input
+                    id="hourlyRate"
                     type="number"
                     min={0}
                     value={form.hourlyRate}
                     onChange={(e) => setForm({ ...form, hourlyRate: Number(e.target.value) })}
+                    className="mt-2"
                   />
                 </div>
                 <div>
-                  <Label>Years of experience</Label>
+                  <Label htmlFor="yearsExperience" className="text-base font-semibold">Years of experience</Label>
                   <Input
+                    id="yearsExperience"
                     type="number"
                     min={0}
                     value={form.yearsExperience}
                     onChange={(e) => setForm({ ...form, yearsExperience: Number(e.target.value) })}
+                    className="mt-2"
                   />
                 </div>
               </div>
-              <Button type="submit" disabled={busy}>
+              <Button type="submit" disabled={busy} className="bg-accent-orange hover:bg-orange-600 text-white shadow-md">
                 {busy ? "Saving…" : "Save profile"}
               </Button>
             </form>
@@ -374,34 +382,34 @@ function ProviderPage() {
       )}
 
       {tab === "verification" && (
-        <Card>
+        <Card className="shadow-card">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <ShieldCheck className="h-4 w-4 text-brand" />
+            <CardTitle className="flex items-center gap-2 text-xl">
+              <ShieldCheck className="h-5 w-5 text-accent-orange" />
               Identity Verification
             </CardTitle>
           </CardHeader>
           <CardContent>
             {p?.verification_status === "verified" ? (
-              <div className="rounded-lg border border-success/40 bg-success/5 p-4">
-                <p className="font-semibold text-success">You are verified ✓</p>
+              <div className="rounded-xl border-2 border-success/40 bg-success/5 p-5">
+                <p className="font-semibold text-success text-lg">You are verified ✓</p>
                 <p className="mt-1 text-sm text-muted-foreground">{p.verification_notes}</p>
                 {p.id_document_url && (
                   <a
                     href={p.id_document_url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="mt-2 inline-flex items-center gap-1 text-xs text-brand hover:underline"
+                    className="mt-3 inline-flex items-center gap-1 text-sm text-accent-orange hover:underline font-medium"
                   >
-                    <Eye className="h-3 w-3" /> View submitted document
+                    <Eye className="h-4 w-4" /> View submitted document
                   </a>
                 )}
               </div>
             ) : (
               <>
                 {p?.verification_status === "pending" && (
-                  <div className="mb-4 rounded-lg border border-warning/40 bg-warning/5 p-4">
-                    <p className="font-semibold text-warning">Verification Pending</p>
+                  <div className="mb-4 rounded-xl border-2 border-warning/40 bg-warning/5 p-5">
+                    <p className="font-semibold text-warning text-lg">Verification Pending</p>
                     <p className="mt-1 text-sm text-muted-foreground">
                       Your documents are under review by our admin team. You'll be notified once a
                       decision is made.
@@ -411,9 +419,9 @@ function ProviderPage() {
                         href={p.id_document_url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="mt-2 inline-flex items-center gap-1 text-xs text-brand hover:underline"
+                        className="mt-3 inline-flex items-center gap-1 text-sm text-accent-orange hover:underline font-medium"
                       >
-                        <Eye className="h-3 w-3" /> View submitted document
+                        <Eye className="h-4 w-4" /> View submitted document
                       </a>
                     )}
                     <p className="mt-3 text-xs text-muted-foreground">
@@ -422,9 +430,9 @@ function ProviderPage() {
                   </div>
                 )}
                 {p?.verification_status === "rejected" && p?.verification_notes && (
-                  <div className="mb-4 rounded-lg border border-destructive/40 bg-destructive/5 p-3 text-sm">
-                    <p className="font-medium text-destructive">Previous submission rejected</p>
-                    <p className="mt-1 text-muted-foreground">{p.verification_notes}</p>
+                  <div className="mb-4 rounded-xl border-2 border-destructive/40 bg-destructive/5 p-4">
+                    <p className="font-medium text-destructive text-lg">Previous submission rejected</p>
+                    <p className="mt-1 text-sm text-muted-foreground">{p.verification_notes}</p>
                   </div>
                 )}
                 <form
@@ -445,7 +453,7 @@ function ProviderPage() {
                       setVbusy(false);
                     }
                   }}
-                  className="space-y-4"
+                  className="space-y-5"
                 >
                   <p className="text-sm text-muted-foreground">
                     Upload a government-issued ID. Your documents will be reviewed by our admin team
@@ -453,18 +461,18 @@ function ProviderPage() {
                   </p>
 
                   <div>
-                    <Label>Document type</Label>
+                    <Label htmlFor="documentType" className="text-base font-semibold">Document type</Label>
                     <Select
                       value={vform.documentType}
                       onValueChange={(v) => setVform({ ...vform, documentType: v as DocumentType })}
                     >
-                      <SelectTrigger>
+                      <SelectTrigger className="mt-2">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        {DOC_TYPES.map((t) => (
-                          <SelectItem key={t} value={t}>
-                            {t}
+                        {DOC_TYPES.map((type) => (
+                          <SelectItem key={type} value={type}>
+                            {type}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -472,13 +480,13 @@ function ProviderPage() {
                   </div>
 
                   <div>
-                    <Label>Upload ID document</Label>
+                    <Label className="text-base font-semibold">Upload ID document</Label>
                     <div
                       onClick={() => fileRef.current?.click()}
-                      className="mt-1 flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-border bg-muted/20 p-6 transition hover:border-brand/50 hover:bg-brand-soft/20"
+                      className="mt-2 flex cursor-pointer flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed border-border bg-muted/20 p-8 transition hover:border-accent-orange hover:bg-brand-soft/20"
                     >
-                      <Upload className="h-6 w-6 text-muted-foreground" />
-                      <p className="text-sm text-muted-foreground">
+                      <Upload className="h-8 w-8 text-muted-foreground" />
+                      <p className="text-sm text-muted-foreground text-center">
                         Click to upload JPG, PNG, WebP or PDF (max 5MB)
                       </p>
                       <input
@@ -490,10 +498,10 @@ function ProviderPage() {
                       />
                     </div>
                     {uploadProgress !== null && (
-                      <div className="mt-2">
-                        <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
+                      <div className="mt-3">
+                        <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
                           <div
-                            className="h-full bg-brand transition-all"
+                            className="h-full bg-accent-orange transition-all"
                             style={{ width: `${uploadProgress}%` }}
                           />
                         </div>
@@ -506,7 +514,7 @@ function ProviderPage() {
                     )}
                     {previewUrl && !previewUrl.includes("application/pdf") && (
                       <div className="mt-3">
-                        <p className="mb-1 text-xs font-medium text-muted-foreground">Preview:</p>
+                        <p className="mb-2 text-xs font-medium text-muted-foreground">Preview:</p>
                         <img
                           src={previewUrl}
                           alt="Document preview"
@@ -517,7 +525,7 @@ function ProviderPage() {
                     {vform.idDocumentUrl &&
                       (previewUrl?.includes("application/pdf") ||
                         (!previewUrl && vform.idDocumentUrl)) && (
-                        <div className="mt-2 flex items-center gap-2 rounded-lg border border-border bg-muted/30 p-2">
+                        <div className="mt-2 flex items-center gap-2 rounded-lg border border-border bg-muted/30 p-3">
                           <FileText className="h-4 w-4 text-muted-foreground" />
                           <span className="text-xs text-muted-foreground">PDF document ready</span>
                         </div>
@@ -525,34 +533,44 @@ function ProviderPage() {
                   </div>
 
                   <div>
-                    <Label>Full legal name</Label>
+                    <Label htmlFor="fullName" className="text-base font-semibold">Full legal name</Label>
                     <Input
+                      id="fullName"
                       required
                       value={vform.fullName}
                       onChange={(e) => setVform({ ...vform, fullName: e.target.value })}
+                      className="mt-2"
                     />
                   </div>
                   <div>
-                    <Label>License / certification URL (optional)</Label>
+                    <Label htmlFor="licenseDocumentUrl" className="text-base font-semibold">License / certification URL (optional)</Label>
                     <Input
+                      id="licenseDocumentUrl"
                       type="url"
                       placeholder="https://…"
                       value={vform.licenseDocumentUrl}
                       onChange={(e) => setVform({ ...vform, licenseDocumentUrl: e.target.value })}
+                      className="mt-2"
                     />
                   </div>
                   <div>
-                    <Label>Describe your documents</Label>
+                    <Label htmlFor="documentDescription" className="text-base font-semibold">Describe your documents</Label>
                     <Textarea
+                      id="documentDescription"
                       rows={3}
                       required
                       minLength={10}
                       placeholder="e.g. Pakistani CNIC front & back, valid till 2028."
                       value={vform.documentDescription}
                       onChange={(e) => setVform({ ...vform, documentDescription: e.target.value })}
+                      className="mt-2"
                     />
                   </div>
-                  <Button type="submit" disabled={vbusy || !vform.idDocumentUrl}>
+                  <Button 
+                    type="submit" 
+                    disabled={vbusy || !vform.idDocumentUrl}
+                    className="bg-accent-orange hover:bg-orange-600 text-white shadow-md"
+                  >
                     {vbusy ? "Submitting…" : "Submit for verification"}
                   </Button>
                 </form>
@@ -560,7 +578,7 @@ function ProviderPage() {
                 {/* Show previously uploaded documents */}
                 {p?.documents && (p.documents as ProviderDocument[]).length > 0 && (
                   <div className="mt-6 border-t border-border pt-4">
-                    <p className="mb-3 text-sm font-medium">Previously uploaded documents</p>
+                    <p className="mb-3 text-sm font-semibold">Previously uploaded documents</p>
                     <div className="space-y-3">
                       {(p.documents as ProviderDocument[]).map((doc) => (
                         <div
@@ -651,30 +669,30 @@ function AppliedJobsTab() {
       </div>
 
       {filtered.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-border p-10 text-center">
+        <div className="rounded-xl border-2 border-dashed border-border p-10 text-center">
           <BriefcaseBusiness className="mx-auto mb-3 h-8 w-8 text-muted-foreground" />
           <p className="text-sm text-muted-foreground">No jobs found.</p>
         </div>
       ) : (
         filtered.map((j) => (
-          <Card key={j.bid_id} className="p-4">
+          <Card key={j.bid_id} className="p-4 shadow-card hover:shadow-card-hover transition-all">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
                 <div className="flex items-center gap-2">
                   <StatusBadge status={j.bid_status} />
                   <span className="text-xs text-muted-foreground">{j.category}</span>
                 </div>
-                <h3 className="mt-1 font-semibold">{j.title}</h3>
+                <h3 className="mt-1 font-semibold text-foreground">{j.title}</h3>
                 <p className="text-xs text-muted-foreground">Owner: {j.homeowner_name}</p>
                 <p className="text-xs text-muted-foreground">
                   Applied: {new Date(j.applied_at).toLocaleDateString()}
                 </p>
               </div>
               <div className="text-right">
-                <p className="text-lg font-bold">PKR {Number(j.bid_amount).toLocaleString()}</p>
+                <p className="text-lg font-bold text-primary">PKR {Number(j.bid_amount).toLocaleString()}</p>
                 <div className="mt-2 flex gap-2 justify-end">
                   <Link to="/jobs/$id" params={{ id: String(j.job_id) }}>
-                    <Button size="sm" variant="outline">
+                    <Button size="sm" variant="outline" className="border-primary text-primary hover:bg-accent-orange hover:text-white">
                       View Job
                     </Button>
                   </Link>

@@ -111,8 +111,9 @@ function HomeownerDash() {
         subtitle="Track your posted jobs, bids, and progress."
         action={
           <Link to="/jobs/new">
-            <Button>
+            <Button className="bg-accent-orange hover:bg-orange-600 text-white shadow-md">
               <PlusCircle className="h-4 w-4" />
+              {" "}
               Post a job
             </Button>
           </Link>
@@ -125,7 +126,7 @@ function HomeownerDash() {
           body="Post your first job to start receiving bids."
           cta={
             <Link to="/jobs/new">
-              <Button>Post a job</Button>
+              <Button className="bg-accent-orange hover:bg-orange-600 text-white">Post a job</Button>
             </Link>
           }
         />
@@ -133,20 +134,20 @@ function HomeownerDash() {
         <div className="my-6 grid gap-3">
           {jobs.map((j) => (
             <Link key={j.id} to="/jobs/$id" params={{ id: String(j.id) }}>
-              <Card className="p-5 transition hover:border-brand/40 hover:shadow-soft">
+              <Card className="p-5 shadow-card hover:shadow-card-hover transition-all hover:-translate-y-1 border-border/60">
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div>
                     <div className="flex items-center gap-2">
                       <StatusBadge status={j.status} />
                       <span className="text-xs text-muted-foreground">{j.category}</span>
                     </div>
-                    <h3 className="mt-2 text-lg font-semibold">{j.title}</h3>
+                    <h3 className="mt-2 text-lg font-semibold text-foreground">{j.title}</h3>
                     <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
                       {j.description}
                     </p>
                   </div>
                   <div className="text-right">
-                    <p className="text-2xl font-bold">{j.bid_count}</p>
+                    <p className="text-2xl font-bold text-primary">{j.bid_count}</p>
                     <p className="text-xs text-muted-foreground">bids</p>
                   </div>
                 </div>
@@ -182,7 +183,10 @@ function ProviderDash() {
             subtitle="Browse and bid on open jobs near you."
             action={
               <Link to="/browse">
-                <Button variant="outline">
+                <Button
+                  variant="outline"
+                  className="border-primary text-primary hover:bg-accent-orange hover:text-white"
+                >
                   <Search className="h-4 w-4" />
                   Browse all
                 </Button>
@@ -190,17 +194,19 @@ function ProviderDash() {
             }
           />
           {needsVerify && (
-            <Card className="my-6 border-warning/40 bg-warning/5 p-5">
+            <Card className="my-6 border-warning/40 bg-warning/5 p-5 shadow-card">
               <div className="flex items-start gap-3">
                 <ShieldAlert className="mt-0.5 h-5 w-5 text-warning" />
                 <div className="flex-1">
-                  <p className="font-semibold">Complete your provider profile</p>
+                  <p className="font-semibold text-foreground">Complete your provider profile</p>
                   <p className="mt-1 text-sm text-muted-foreground">
                     Homeowners strongly prefer verified providers. Add your details and submit for
                     verification.
                   </p>
                   <Link to="/provider" className="mt-3 inline-block">
-                    <Button size="sm">Go to profile</Button>
+                    <Button size="sm" className="bg-accent-orange hover:bg-orange-600 text-white">
+                      Go to profile
+                    </Button>
                   </Link>
                 </div>
               </div>
@@ -216,11 +222,11 @@ function ProviderDash() {
             <div className="my-6 grid gap-3">
               {jobs.slice(0, 10).map((j) => (
                 <Link key={j.id} to="/jobs/$id" params={{ id: String(j.id) }}>
-                  <Card className="p-5 transition hover:border-brand/40 hover:shadow-soft">
+                  <Card className="p-5 shadow-card hover:shadow-card-hover transition-all hover:-translate-y-1 border-border/60">
                     <div className="flex flex-wrap items-start justify-between gap-3">
                       <div>
                         <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                          <span className="rounded bg-brand-soft px-1.5 py-0.5 font-medium text-brand">
+                          <span className="rounded bg-brand-soft px-1.5 py-0.5 font-medium text-primary">
                             {j.category}
                           </span>
                           <span>- {j.address}</span>
@@ -230,15 +236,15 @@ function ProviderDash() {
                             </span>
                           )}
                         </div>
-                        <h3 className="mt-2 text-lg font-semibold">{j.title}</h3>
+                        <h3 className="mt-2 text-lg font-semibold text-foreground">{j.title}</h3>
                         <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
                           {j.description}
                         </p>
                       </div>
                       {j.ai_suggested_min && (
                         <div className="rounded-lg bg-brand-soft px-3 py-2 text-center">
-                          <p className="text-xs text-brand">AI range</p>
-                          <p className="text-sm font-bold text-brand">
+                          <p className="text-xs text-primary">AI range</p>
+                          <p className="text-sm font-bold text-primary">
                             PKR {Number(j.ai_suggested_min).toLocaleString()} -{" "}
                             {Number(j.ai_suggested_max).toLocaleString()}
                           </p>
@@ -347,12 +353,12 @@ function JobRequestPopup({ broadcast }: { broadcast: JobBroadcast }) {
 
   return (
     <div className="fixed inset-0 z-50 grid place-items-center bg-background/25 p-4 backdrop-blur-md">
-      <div className="w-full max-w-2xl rounded-lg border border-brand/30 bg-background p-6 shadow-elevated">
+      <div className="w-full max-w-2xl rounded-2xl border-2 border-accent-orange/30 bg-white p-6 shadow-elevated animate-scale-in">
         <div className="flex flex-col gap-2 border-b border-border pb-4">
-          <p className="text-xs font-semibold uppercase tracking-wide text-brand">
+          <p className="text-xs font-semibold uppercase tracking-wide text-accent-orange">
             High priority job request
           </p>
-          <h2 className="text-2xl font-bold">{broadcast.title}</h2>
+          <h2 className="text-2xl font-bold text-foreground">{broadcast.title}</h2>
           <p className="text-sm text-muted-foreground">
             Respond to this request before continuing dashboard activities.
           </p>
@@ -362,54 +368,66 @@ function JobRequestPopup({ broadcast }: { broadcast: JobBroadcast }) {
           <InfoItem label="Customer Name" value={broadcast.customer_name} />
           <InfoItem label="Service Category" value={broadcast.category} />
           <InfoItem
-            icon={<MapPin className="h-4 w-4" />}
+            icon={<MapPin className="h-4 w-4 text-accent-orange" />}
             label="Job Location"
             value={broadcast.address}
           />
           <InfoItem
-            icon={<Clock className="h-4 w-4" />}
+            icon={<Clock className="h-4 w-4 text-accent-orange" />}
             label="Estimated Duration"
             value={formatDuration(broadcast)}
           />
           <InfoItem
-            icon={<Wallet className="h-4 w-4" />}
+            icon={<Wallet className="h-4 w-4 text-accent-orange" />}
             label="Suggested Budget"
             value={formatBudget(broadcast)}
           />
           <InfoItem label="Distance" value="Not available" />
         </div>
 
-        <div className="mt-4 rounded-md border border-border bg-muted/20 p-4">
+        <div className="mt-4 rounded-xl border border-border bg-muted/20 p-4">
           <p className="text-xs font-medium text-muted-foreground">Job Description</p>
-          <p className="mt-1 text-sm leading-6">{broadcast.description}</p>
+          <p className="mt-1 text-sm leading-6 text-foreground">{broadcast.description}</p>
         </div>
 
         {customizing && (
-          <div className="mt-4 grid gap-3 rounded-md border border-brand/30 bg-brand-soft/20 p-4">
+          <div className="mt-4 grid gap-3 rounded-xl border-2 border-accent-orange/30 bg-brand-soft/20 p-4">
             <div>
-              <Label htmlFor="customTotal">Custom total price (PKR)</Label>
+              <Label htmlFor="customTotal" className="text-base font-semibold">
+                Custom total price (PKR)
+              </Label>
               <Input
                 id="customTotal"
                 type="number"
                 min={1}
                 value={customTotal}
                 onChange={(e) => setCustomTotal(e.target.value)}
+                className="mt-2"
               />
             </div>
             <div>
-              <Label htmlFor="customMessage">Message (optional)</Label>
+              <Label htmlFor="customMessage" className="text-base font-semibold">
+                Message (optional)
+              </Label>
               <Input
                 id="customMessage"
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 placeholder="Add a short note for the customer"
+                className="mt-2"
               />
             </div>
           </div>
         )}
 
         <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:justify-end">
-          <Button type="button" variant="outline" disabled={busyAction !== null} onClick={onReject}>
+          <Button
+            type="button"
+            variant="outline"
+            disabled={busyAction !== null}
+            onClick={onReject}
+            className="border-destructive text-destructive hover:bg-destructive hover:text-white"
+          >
             {busyAction === "reject" ? "Rejecting..." : "Reject"}
           </Button>
           <Button
@@ -417,6 +435,7 @@ function JobRequestPopup({ broadcast }: { broadcast: JobBroadcast }) {
             variant={customizing ? "default" : "outline"}
             disabled={busyAction !== null || (customizing && Number(customTotal) <= 0)}
             onClick={customizing ? onCustomize : () => setCustomizing(true)}
+            className="border-primary text-primary hover:bg-accent-orange hover:text-white hover:border-accent-orange"
           >
             {busyAction === "customize"
               ? "Submitting..."
@@ -424,7 +443,12 @@ function JobRequestPopup({ broadcast }: { broadcast: JobBroadcast }) {
                 ? "Submit counter-offer"
                 : "Customize Price"}
           </Button>
-          <Button type="button" disabled={busyAction !== null} onClick={onAccept}>
+          <Button
+            type="button"
+            disabled={busyAction !== null}
+            onClick={onAccept}
+            className="bg-success hover:bg-green-600 text-white"
+          >
             {busyAction === "accept" ? "Accepting..." : "Accept"}
           </Button>
         </div>
@@ -443,12 +467,12 @@ function InfoItem({
   value: React.ReactNode;
 }) {
   return (
-    <div className="rounded-md border border-border bg-background p-3">
+    <div className="rounded-lg border border-border bg-white p-3">
       <div className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
         {icon}
         {label}
       </div>
-      <p className="mt-1 text-sm font-semibold">{value}</p>
+      <p className="mt-1 text-sm font-semibold text-foreground">{value}</p>
     </div>
   );
 }
@@ -465,11 +489,11 @@ function EmptyState({
   cta?: React.ReactNode;
 }) {
   return (
-    <div className="my-10 flex flex-col items-center gap-3 rounded-xl border border-dashed border-border p-12 text-center">
-      <span className="grid h-12 w-12 place-items-center rounded-full bg-brand-soft text-brand">
+    <div className="my-10 flex flex-col items-center gap-3 rounded-xl border-2 border-dashed border-border p-12 text-center">
+      <span className="grid h-12 w-12 place-items-center rounded-full bg-brand-soft text-primary">
         {icon}
       </span>
-      <h3 className="text-lg font-semibold">{title}</h3>
+      <h3 className="text-lg font-semibold text-foreground">{title}</h3>
       <p className="max-w-sm text-sm text-muted-foreground">{body}</p>
       {cta}
     </div>

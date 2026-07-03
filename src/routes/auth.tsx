@@ -69,30 +69,36 @@ function AuthPage() {
   return (
     <main className="bg-soft min-h-[calc(100vh-4rem)] py-12">
       <Container className="max-w-md">
-        <div className="mb-6 flex items-center justify-center gap-2">
-          <span className="grid h-9 w-9 place-items-center rounded-lg bg-hero text-brand-foreground shadow-soft">
-            <img src={homefixrLogo} alt="HomeFixr Logo" className="h-full w-full object-contain" />
+        <div className="mb-8 flex items-center justify-center gap-3">
+          <span className="grid h-12 w-12 place-items-center rounded-xl bg-primary text-white shadow-lg">
+            <img
+              src={homefixrLogo}
+              alt="HomeFixr Logo"
+              className="h-full w-full object-contain p-1.5"
+            />
           </span>
-          <span className="text-xl font-bold">
-            <span style={{ color: "#1e3a5f" }}>Home</span>
-            <span style={{ color: "#f97316" }}>Fixr</span>
+          <span className="text-2xl font-bold">
+            <span className="text-primary">Home</span>
+            <span className="text-accent-orange">Fixr</span>
           </span>
         </div>
-        <Card className="shadow-elevated">
-          <CardHeader>
-            <CardTitle>{mode === "signup" ? "Create your account" : "Welcome back"}</CardTitle>
-            <CardDescription>
+        <Card className="shadow-card animate-slide-up">
+          <CardHeader className="space-y-1">
+            <CardTitle className="text-2xl">
+              {mode === "signup" ? "Create your account" : "Welcome back"}
+            </CardTitle>
+            <CardDescription className="text-base">
               {mode === "signup"
                 ? "Homeowners post jobs, professionals bid on them."
                 : "Sign in to your HomeFixr account."}
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={onSubmit} className="space-y-4">
+            <form onSubmit={onSubmit} className="space-y-5">
               {mode === "signup" && (
                 <>
                   <div>
-                    <Label className="mb-2 block">I want to</Label>
+                    <Label className="mb-3 block text-base font-semibold">I want to</Label>
                     <RadioGroup
                       value={form.role}
                       onValueChange={(v) =>
@@ -100,49 +106,60 @@ function AuthPage() {
                       }
                       className="grid grid-cols-2 gap-3"
                     >
-                      <label className="flex cursor-pointer items-center gap-2 rounded-lg border border-border p-3 has-[[data-state=checked]]:border-brand has-[[data-state=checked]]:bg-brand-soft">
+                      <label className="flex cursor-pointer items-center gap-3 rounded-xl border-2 border-border p-4 transition-all hover:border-accent-orange has-[[data-state=checked]]:border-accent-orange has-[[data-state=checked]]:bg-brand-soft">
                         <RadioGroupItem value="homeowner" />
-                        <User2 className="h-4 w-4" />
-                        <span className="text-sm font-medium">Customer</span>
+                        <User2 className="h-5 w-5 text-primary" />
+                        <span className="text-sm font-semibold">Customer</span>
                       </label>
-                      <label className="flex cursor-pointer items-center gap-2 rounded-lg border border-border p-3 has-[[data-state=checked]]:border-brand has-[[data-state=checked]]:bg-brand-soft">
+                      <label className="flex cursor-pointer items-center gap-3 rounded-xl border-2 border-border p-4 transition-all hover:border-accent-orange has-[[data-state=checked]]:border-accent-orange has-[[data-state=checked]]:bg-brand-soft">
                         <RadioGroupItem value="provider" />
-                        <Wrench className="h-4 w-4" />
-                        <span className="text-sm font-medium">Service Provider</span>
+                        <Wrench className="h-5 w-5 text-primary" />
+                        <span className="text-sm font-semibold">Service Provider</span>
                       </label>
                     </RadioGroup>
                   </div>
                   <div>
-                    <Label htmlFor="name">Full name</Label>
+                    <Label htmlFor="name" className="text-base font-semibold">
+                      Full name
+                    </Label>
                     <Input
                       id="name"
                       required
                       value={form.name}
                       onChange={(e) => setForm({ ...form, name: e.target.value })}
+                      className="mt-2"
                     />
                   </div>
                   <div>
-                    <Label htmlFor="phone">Phone (optional)</Label>
+                    <Label htmlFor="phone" className="text-base font-semibold">
+                      Phone (optional)
+                    </Label>
                     <Input
                       id="phone"
                       value={form.phone}
                       onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                      className="mt-2"
                     />
                   </div>
                 </>
               )}
               <div>
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email" className="text-base font-semibold">
+                  Email
+                </Label>
                 <Input
                   id="email"
                   type="email"
                   required
                   value={form.email}
                   onChange={(e) => setForm({ ...form, email: e.target.value })}
+                  className="mt-2"
                 />
               </div>
               <div>
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password" className="text-base font-semibold">
+                  Password
+                </Label>
                 <Input
                   id="password"
                   type="password"
@@ -150,6 +167,7 @@ function AuthPage() {
                   minLength={6}
                   value={form.password}
                   onChange={(e) => setForm({ ...form, password: e.target.value })}
+                  className="mt-2"
                 />
               </div>
               <Button type="submit" className="w-full" disabled={loading}>
@@ -161,7 +179,7 @@ function AuthPage() {
                     Already have an account?{" "}
                     <button
                       type="button"
-                      className="font-medium text-brand hover:underline"
+                      className="font-medium text-accent-orange hover:underline"
                       onClick={() => nav({ to: "/auth", search: { mode: "login" } })}
                     >
                       Sign in
@@ -172,7 +190,7 @@ function AuthPage() {
                     New to HomeFixr?{" "}
                     <button
                       type="button"
-                      className="font-medium text-brand hover:underline"
+                      className="font-medium text-accent-orange hover:underline"
                       onClick={() => nav({ to: "/auth", search: { mode: "signup" } })}
                     >
                       Create an account

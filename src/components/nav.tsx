@@ -19,6 +19,8 @@ import {
   UserCircle2,
   Bell,
   BriefcaseBusiness,
+  Menu,
+  X,
 } from "lucide-react";
 
 type Notification = {
@@ -41,6 +43,7 @@ export function Nav() {
   const nav = useNavigate();
   const router = useRouter();
   const qc = useQueryClient();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const handleLogout = async () => {
     await doLogout();
@@ -50,29 +53,43 @@ export function Nav() {
   };
 
   return (
-    <header className="sticky top-0 z-40 border-b border-border/60 bg-background/85 backdrop-blur">
-      <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">
-        <Link to="/" className="flex items-center gap-2 font-bold">
-          <span className="grid h-9 w-9 place-items-center rounded-lg bg-hero text-brand-foreground shadow-soft">
-            <img src={homefixrLogo} alt="HomeFixr Logo" className="h-full w-full object-contain" />
+    <header className="sticky top-0 z-50 border-b border-border bg-white/95 backdrop-blur-sm">
+      <div className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
+        <Link to="/" className="flex items-center gap-2.5 font-bold">
+          <span className="grid h-10 w-10 place-items-center rounded-xl bg-primary text-white shadow-md">
+            <img
+              src={homefixrLogo}
+              alt="HomeFixr Logo"
+              className="h-full w-full object-contain p-1"
+            />
           </span>
-          <span className="text-lg tracking-tight">
-            <span className="text-[#1e3a5f]">Home</span>
-            <span className="text-[#f97316]">Fixr</span>
+          <span className="text-xl tracking-tight">
+            <span className="text-primary">Home</span>
+            <span className="text-accent-orange">Fixr</span>
           </span>
         </Link>
-        <nav className="hidden items-center gap-1 md:flex">
+
+        {/* Desktop Navigation */}
+        <nav className="hidden items-center gap-1 lg:flex">
           {user && (
             <>
               <Link to="/dashboard">
-                <Button variant="ghost" size="sm">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-foreground hover:text-accent-orange hover:bg-muted"
+                >
                   <LayoutDashboard className="h-4 w-4" />
                   Dashboard
                 </Button>
               </Link>
               {user.role === "homeowner" && (
                 <Link to="/jobs/new">
-                  <Button variant="ghost" size="sm">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-foreground hover:text-accent-orange hover:bg-muted"
+                  >
                     <PlusCircle className="h-4 w-4" />
                     Post a job
                   </Button>
@@ -81,19 +98,31 @@ export function Nav() {
               {user.role === "provider" && (
                 <>
                   <Link to="/browse">
-                    <Button variant="ghost" size="sm">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-foreground hover:text-accent-orange hover:bg-muted"
+                    >
                       <Search className="h-4 w-4" />
                       Browse jobs
                     </Button>
                   </Link>
                   <Link to="/jobs/applied">
-                    <Button variant="ghost" size="sm">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-foreground hover:text-accent-orange hover:bg-muted"
+                    >
                       <BriefcaseBusiness className="h-4 w-4" />
                       Jobs Applied
                     </Button>
                   </Link>
                   <Link to="/provider">
-                    <Button variant="ghost" size="sm">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-foreground hover:text-accent-orange hover:bg-muted"
+                    >
                       <UserCircle2 className="h-4 w-4" />
                       Profile
                     </Button>
@@ -102,7 +131,11 @@ export function Nav() {
               )}
               {user.role === "admin" && (
                 <Link to="/admin">
-                  <Button variant="ghost" size="sm">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-foreground hover:text-accent-orange hover:bg-muted"
+                  >
                     Admin
                   </Button>
                 </Link>
@@ -110,32 +143,153 @@ export function Nav() {
             </>
           )}
         </nav>
+
         <div className="flex items-center gap-2">
           {user ? (
             <>
               {(user.role === "provider" || user.role === "homeowner") && <NotificationBell />}
               <span className="hidden text-sm text-muted-foreground sm:inline">
-                {user.name} · <span className="capitalize">{user.role}</span>
+                {user.name} · <span className="capitalize font-medium text-foreground">{user.role}</span>
               </span>
-              <Button variant="outline" size="sm" onClick={handleLogout}>
+
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleLogout}
+                className="border-primary text-primary hover:bg-accent-orange hover:text-white hover:border-accent-orange"
+              >
                 <LogOut className="h-4 w-4" />
                 Sign out
               </Button>
             </>
           ) : (
             <>
-              <Link to="/auth" search={{ mode: "login" }}>
-                <Button variant="ghost" size="sm">
+              <Link to="/auth" search={{ mode: "login" }} className="hidden sm:block">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-foreground hover:text-accent-orange hover:bg-muted"
+                >
                   Sign in
                 </Button>
               </Link>
               <Link to="/auth" search={{ mode: "signup" }}>
-                <Button size="sm">Get started</Button>
+                <Button
+                  size="sm"
+                  className="bg-accent-orange hover:bg-orange-600 text-white shadow-md"
+                >
+                  Get started
+                </Button>
               </Link>
             </>
           )}
+
+          {/* Mobile menu button */}
+          <button
+            className="lg:hidden rounded-lg p-2 text-foreground hover:bg-muted"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          >
+            {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </button>
         </div>
       </div>
+
+      {/* Mobile Navigation */}
+      {mobileMenuOpen && (
+        <div className="border-t border-border bg-white lg:hidden animate-slide-up">
+          <div className="container mx-auto px-4 py-4 space-y-2">
+            {user ? (
+              <>
+                <Link to="/dashboard" className="block">
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-start text-foreground hover:text-accent-orange"
+                  >
+                    <LayoutDashboard className="h-4 w-4 mr-2" />
+                    Dashboard
+                  </Button>
+                </Link>
+                {user.role === "homeowner" && (
+                  <Link to="/jobs/new" className="block">
+                    <Button
+                      variant="ghost"
+                      className="w-full justify-start text-foreground hover:text-accent-orange"
+                    >
+                      <PlusCircle className="h-4 w-4 mr-2" />
+                      Post a job
+                    </Button>
+                  </Link>
+                )}
+                {user.role === "provider" && (
+                  <>
+                    <Link to="/browse" className="block">
+                      <Button
+                        variant="ghost"
+                        className="w-full justify-start text-foreground hover:text-accent-orange"
+                      >
+                        <Search className="h-4 w-4 mr-2" />
+                        Browse jobs
+                      </Button>
+                    </Link>
+                    <Link to="/jobs/applied" className="block">
+                      <Button
+                        variant="ghost"
+                        className="w-full justify-start text-foreground hover:text-accent-orange"
+                      >
+                        <BriefcaseBusiness className="h-4 w-4 mr-2" />
+                        Jobs Applied
+                      </Button>
+                    </Link>
+                    <Link to="/provider" className="block">
+                      <Button
+                        variant="ghost"
+                        className="w-full justify-start text-foreground hover:text-accent-orange"
+                      >
+                        <UserCircle2 className="h-4 w-4 mr-2" />
+                        Profile
+                      </Button>
+                    </Link>
+                  </>
+                )}
+                {user.role === "admin" && (
+                  <Link to="/admin" className="block">
+                    <Button
+                      variant="ghost"
+                      className="w-full justify-start text-foreground hover:text-accent-orange"
+                    >
+                      Admin
+                    </Button>
+                  </Link>
+                )}
+                <Button
+                  variant="outline"
+                  className="w-full border-primary text-primary hover:bg-accent-orange hover:text-white"
+                  onClick={handleLogout}
+                >
+                  <LogOut className="h-4 w-4 mr-2" />
+                  Sign out
+                </Button>
+              </>
+            ) : (
+              <>
+                <Link to="/auth" search={{ mode: "login" }} className="block">
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-start text-foreground hover:text-accent-orange"
+                  >
+                    Sign in
+                  </Button>
+                </Link>
+                <Link to="/auth" search={{ mode: "signup" }} className="block">
+                  <Button className="w-full bg-accent-orange hover:bg-orange-600 text-white">
+                    Get started
+                  </Button>
+                </Link>
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </header>
   );
 }
@@ -192,10 +346,10 @@ function NotificationBell() {
             refetchList();
           }
         }}
-        className="relative grid h-9 w-9 place-items-center rounded-lg border border-border bg-background hover:bg-accent transition-colors"
+        className="relative grid h-9 w-9 place-items-center rounded-lg border border-border bg-white hover:bg-muted transition-colors"
         aria-label="Notifications"
       >
-        <Bell className="h-4 w-4" />
+        <Bell className="h-4 w-4 text-foreground" />
         {count > 0 && (
           <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-destructive-foreground">
             {count > 9 ? "9+" : count}
@@ -204,11 +358,14 @@ function NotificationBell() {
       </button>
 
       {open && (
-        <div className="absolute right-0 top-11 z-50 w-80 rounded-xl border border-border bg-background shadow-elevated">
+        <div className="absolute right-0 top-11 z-50 w-80 rounded-xl border border-border bg-white shadow-elevated animate-scale-in">
           <div className="flex items-center justify-between border-b border-border px-4 py-3">
-            <p className="text-sm font-semibold">Notifications</p>
+            <p className="text-sm font-semibold text-foreground">Notifications</p>
             {count > 0 && (
-              <button onClick={handleMarkAll} className="text-xs text-brand hover:underline">
+              <button
+                onClick={handleMarkAll}
+                className="text-xs text-accent-orange hover:underline font-medium"
+              >
                 Mark all read
               </button>
             )}
@@ -226,7 +383,7 @@ function NotificationBell() {
                 >
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex-1">
-                      <p className="text-xs font-semibold">{n.title}</p>
+                      <p className="text-xs font-semibold text-foreground">{n.title}</p>
                       <p className="mt-0.5 text-xs text-muted-foreground">{n.body}</p>
                       <p className="mt-1 text-[10px] text-muted-foreground">
                         {new Date(n.created_at).toLocaleString()}
@@ -235,7 +392,7 @@ function NotificationBell() {
                     {!n.is_read && (
                       <button
                         onClick={() => handleMarkRead(n.id)}
-                        className="mt-0.5 shrink-0 text-[10px] text-brand hover:underline"
+                        className="mt-0.5 shrink-0 text-[10px] text-accent-orange hover:underline font-medium"
                       >
                         Mark read
                       </button>
@@ -248,7 +405,7 @@ function NotificationBell() {
                         handleMarkRead(n.id);
                         setOpen(false);
                       }}
-                      className="mt-1 text-[10px] font-medium text-brand hover:underline"
+                      className="mt-1 text-[10px] font-medium text-accent-orange hover:underline"
                     >
                       View →
                     </Link>

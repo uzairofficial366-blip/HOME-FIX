@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { toast } from "sonner";
 import { User2, Wrench } from "lucide-react";
+import homefixrLogo from "../../public/Home Fixr Icon-128x128.jpg";
 
 const SearchSchema = z.object({ mode: z.enum(["login", "signup"]).catch("login") });
 
@@ -69,24 +70,8 @@ function AuthPage() {
     <main className="bg-soft min-h-[calc(100vh-4rem)] py-12">
       <Container className="max-w-md">
         <div className="mb-6 flex items-center justify-center gap-2">
-          <span className="grid h-10 w-10 place-items-center rounded-lg bg-hero text-brand-foreground shadow-soft">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 64 64"
-              width="28"
-              height="28"
-              fill="none"
-            >
-              <path d="M32 8L8 28l4 0v24h40V28l4 0L32 8z" fill="#2563eb" />
-              <rect x="16" y="36" width="12" height="12" fill="#f97316" />
-              <line x1="22" y1="36" x2="22" y2="48" stroke="#fff" strokeWidth="1.5" />
-              <line x1="16" y1="42" x2="28" y2="42" stroke="#fff" strokeWidth="1.5" />
-              <g transform="translate(32, 32) rotate(-30)">
-                <rect x="-3" y="-8" width="6" height="20" rx="1" fill="#fff" />
-                <circle cx="0" cy="12" r="8" fill="#fff" />
-                <circle cx="0" cy="12" r="3" fill="#2563eb" />
-              </g>
-            </svg>
+          <span className="grid h-9 w-9 place-items-center rounded-lg bg-hero text-brand-foreground shadow-soft">
+            <img src={homefixrLogo} alt="HomeFixr Logo" className="h-full w-full object-contain" />
           </span>
           <span className="text-xl font-bold">
             <span style={{ color: "#1e3a5f" }}>Home</span>

@@ -151,6 +151,7 @@ export async function ensureSchema() {
       submitted_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
       reviewed_at TIMESTAMPTZ
     )`;
+    await sql`ALTER TABLE verification_requests ADD COLUMN IF NOT EXISTS admin_notes TEXT DEFAULT ''`;
     await sql`CREATE TABLE IF NOT EXISTS reviews (
       id SERIAL PRIMARY KEY,
       job_id INTEGER NOT NULL REFERENCES jobs(id) ON DELETE CASCADE,

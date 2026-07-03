@@ -10,8 +10,8 @@ import {
   markAllRead,
 } from "@/lib/notifications.functions";
 import { Button } from "@/components/ui/button";
+import homefixrLogo from "../../public/Home Fixr Icon-128x128.jpg";
 import {
-  Hammer,
   LogOut,
   LayoutDashboard,
   PlusCircle,
@@ -20,6 +20,16 @@ import {
   Bell,
   BriefcaseBusiness,
 } from "lucide-react";
+
+type Notification = {
+  id: number;
+  user_id: number;
+  title: string;
+  body: string;
+  link: string | null;
+  is_read: boolean;
+  created_at: string;
+};
 
 export function meQueryOptions() {
   return { queryKey: ["me"], queryFn: () => me(), staleTime: 30_000 };
@@ -44,9 +54,12 @@ export function Nav() {
       <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">
         <Link to="/" className="flex items-center gap-2 font-bold">
           <span className="grid h-9 w-9 place-items-center rounded-lg bg-hero text-brand-foreground shadow-soft">
-            <Hammer className="h-4 w-4" />
+            <img src={homefixrLogo} alt="HomeFixr Logo" className="h-full w-full object-contain" />
           </span>
-          <span className="text-lg tracking-tight">HomeFixr</span>
+          <span className="text-lg tracking-tight">
+            <span className="text-[#1e3a5f]">Home</span>
+            <span className="text-[#f97316]">Fixr</span>
+          </span>
         </Link>
         <nav className="hidden items-center gap-1 md:flex">
           {user && (
@@ -201,12 +214,12 @@ function NotificationBell() {
             )}
           </div>
           <div className="max-h-80 overflow-y-auto">
-            {(notifications as any[]).length === 0 ? (
+            {(notifications as Notification[]).length === 0 ? (
               <p className="px-4 py-6 text-center text-sm text-muted-foreground">
                 No notifications yet.
               </p>
             ) : (
-              (notifications as any[]).map((n) => (
+              notifications.map((n: Notification) => (
                 <div
                   key={n.id}
                   className={`border-b border-border/50 px-4 py-3 last:border-0 ${!n.is_read ? "bg-brand-soft/30" : ""}`}

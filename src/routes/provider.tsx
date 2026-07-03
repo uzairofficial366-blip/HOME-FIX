@@ -62,6 +62,8 @@ type ProviderProfile = {
   verification_notes?: string;
   id_document_url?: string;
   documents?: ProviderDocument[];
+  name?: string;
+  email?: string;
 };
 
 type AppliedJob = {
@@ -272,7 +274,7 @@ function ProviderPage() {
                 <Avatar className="h-20 w-20">
                   <AvatarImage src={form.profilePictureUrl} alt="Provider profile picture" />
                   <AvatarFallback className="text-lg font-semibold">
-                    {(profile as any)?.name?.slice(0, 2)?.toUpperCase() ?? "PR"}
+                    {p?.name?.slice(0, 2)?.toUpperCase() ?? "PR"}
                   </AvatarFallback>
                 </Avatar>
                 <div className="min-w-0 flex-1">
@@ -395,26 +397,30 @@ function ProviderPage() {
                   </a>
                 )}
               </div>
-            ) : p?.verification_status === "pending" ? (
-              <div className="rounded-lg border border-warning/40 bg-warning/5 p-4">
-                <p className="font-semibold text-warning">Verification Pending</p>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  Your documents are under review by our admin team. You'll be notified once a
-                  decision is made.
-                </p>
-                {p.id_document_url && (
-                  <a
-                    href={p.id_document_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="mt-2 inline-flex items-center gap-1 text-xs text-brand hover:underline"
-                  >
-                    <Eye className="h-3 w-3" /> View submitted document
-                  </a>
-                )}
-              </div>
             ) : (
               <>
+                {p?.verification_status === "pending" && (
+                  <div className="mb-4 rounded-lg border border-warning/40 bg-warning/5 p-4">
+                    <p className="font-semibold text-warning">Verification Pending</p>
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      Your documents are under review by our admin team. You'll be notified once a
+                      decision is made.
+                    </p>
+                    {p.id_document_url && (
+                      <a
+                        href={p.id_document_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="mt-2 inline-flex items-center gap-1 text-xs text-brand hover:underline"
+                      >
+                        <Eye className="h-3 w-3" /> View submitted document
+                      </a>
+                    )}
+                    <p className="mt-3 text-xs text-muted-foreground">
+                      You can submit new documents if needed.
+                    </p>
+                  </div>
+                )}
                 {p?.verification_status === "rejected" && p?.verification_notes && (
                   <div className="mb-4 rounded-lg border border-destructive/40 bg-destructive/5 p-3 text-sm">
                     <p className="font-medium text-destructive">Previous submission rejected</p>

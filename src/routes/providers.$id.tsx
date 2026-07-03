@@ -46,7 +46,9 @@ function PublicProviderProfile() {
     return (
       <Container className="max-w-4xl">
         <div className="my-16 text-center">
-          <p className="text-destructive">{error ? (error as Error).message : "Provider not found."}</p>
+          <p className="text-destructive">
+            {error ? (error as Error).message : "Provider not found."}
+          </p>
           <Link to="/browse" className="mt-4 inline-block">
             <Button variant="outline">
               <ChevronLeft className="h-4 w-4" /> Back to browse
@@ -105,7 +107,6 @@ function PublicProviderProfile() {
       <div className="my-4 grid gap-6 lg:grid-cols-[1fr_300px]">
         {/* ── Left column ── */}
         <div className="space-y-6">
-
           {/* Hero card */}
           <Card>
             <CardContent className="p-6">
@@ -240,8 +241,7 @@ function PublicProviderProfile() {
                 <div className="flex-1">
                   <StarRow rating={avgRating} size="lg" />
                   <p className="mt-2 text-sm text-muted-foreground">
-                    Based on{" "}
-                    <span className="font-semibold text-foreground">{p.review_count}</span>{" "}
+                    Based on <span className="font-semibold text-foreground">{p.review_count}</span>{" "}
                     {p.review_count === 1 ? "review" : "reviews"}
                   </p>
                   {/* Rating bar breakdown */}
@@ -291,7 +291,9 @@ function PublicProviderProfile() {
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-muted-foreground">Hourly rate</span>
-                  <span className="font-semibold">PKR {Number(p.hourly_rate).toLocaleString()}</span>
+                  <span className="font-semibold">
+                    PKR {Number(p.hourly_rate).toLocaleString()}
+                  </span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-muted-foreground">Daily rate</span>
@@ -310,9 +312,7 @@ function PublicProviderProfile() {
                   <span className="flex items-center gap-1 font-semibold">
                     <Star className="h-3.5 w-3.5 fill-warning text-warning" />
                     {avgRating > 0 ? avgRating.toFixed(1) : "—"}
-                    <span className="text-xs font-normal text-muted-foreground">
-                      / 5
-                    </span>
+                    <span className="text-xs font-normal text-muted-foreground">/ 5</span>
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
@@ -377,15 +377,7 @@ function PublicProviderProfile() {
 
 /* ── Sub-components ── */
 
-function StatBox({
-  icon,
-  label,
-  value,
-}: {
-  icon: React.ReactNode;
-  label: string;
-  value: string;
-}) {
+function StatBox({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
   return (
     <div className="flex flex-col items-center gap-1 rounded-lg border border-border bg-muted/20 p-3 text-center">
       <span className="text-muted-foreground">{icon}</span>
@@ -416,11 +408,7 @@ function StarRow({ rating, size = "sm" }: { rating: number; size?: "sm" | "lg" }
   );
 }
 
-function RatingBars({
-  reviews,
-}: {
-  reviews: Array<{ rating: number }>;
-}) {
+function RatingBars({ reviews }: { reviews: Array<{ rating: number }> }) {
   if (reviews.length === 0) return null;
   const counts = [5, 4, 3, 2, 1].map((star) => ({
     star,

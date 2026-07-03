@@ -182,8 +182,8 @@ export const uploadVerificationDocument = createServerFn({ method: "POST" })
   });
 
 const SubmitVerification = z.object({
-  idDocumentUrl: z.string().min(1).max(2_000_000), // can be a data URL
-  licenseDocumentUrl: z.string().max(2_000_000).optional().or(z.literal("")),
+  idDocumentUrl: z.string().min(1).max(10_000_000), // can be a data URL (base64 encoded, ~33% larger)
+  licenseDocumentUrl: z.string().max(10_000_000).optional().or(z.literal("")),
   fullName: z.string().min(1).max(200),
   documentType: z.enum(DOCUMENT_TYPES),
   documentDescription: z.string().min(10).max(2000),

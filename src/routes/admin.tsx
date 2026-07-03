@@ -149,7 +149,9 @@ function VerificationCard({
                       className="mt-2 max-h-48 rounded border border-border object-contain"
                     />
                   ) : doc.file_url.startsWith("data:application/pdf") ? (
-                    <p className="mt-1 text-xs text-muted-foreground">PDF document (cannot preview inline)</p>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      PDF document (cannot preview inline)
+                    </p>
                   ) : (
                     <a
                       href={doc.file_url}

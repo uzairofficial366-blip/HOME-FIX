@@ -967,7 +967,7 @@ function ChatBox({
                       {String(m.attachment_type).startsWith("image/") ? (
                         <img
                           src={m.attachment_url}
-                          alt={m.attachment_name}
+                           alt={m.attachment_name ?? undefined}
                           className="h-14 w-14 rounded object-cover"
                         />
                       ) : (

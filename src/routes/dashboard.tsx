@@ -103,7 +103,7 @@ function Dashboard() {
 }
 
 function HomeownerDash() {
-  const { data: jobs = [] } = useQuery<HomeownerJob[]>(myJobsQO);
+  const { data: jobs = [] } = useQuery(myJobsQO);
   return (
     <Container>
       <PageHeader
@@ -161,9 +161,9 @@ function HomeownerDash() {
 }
 
 function ProviderDash() {
-  const { data: jobs = [] } = useQuery<OpenJob[]>(openJobsQO);
-  const { data: profile } = useQuery<ProviderProfile | null>(profileQO);
-  const { data: pendingBroadcast = null } = useQuery<JobBroadcast | null>(pendingBroadcastQO);
+  const { data: jobs = [] } = useQuery(openJobsQO);
+  const { data: profile } = useQuery(profileQO);
+  const { data: pendingBroadcast } = useQuery(pendingBroadcastQO);
   const needsVerify = !profile || profile.verification_status !== "verified";
   const hasBlockingBroadcast = Boolean(pendingBroadcast);
 

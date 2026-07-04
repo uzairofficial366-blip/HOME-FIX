@@ -29,9 +29,10 @@ export async function createSession(payload: SessionPayload) {
     .setIssuedAt()
     .setExpirationTime("30d")
     .sign(getSecret());
+  const isLocal = process.env.NODE_ENV === "development" || !process.env.NODE_ENV;
   setCookie(COOKIE_NAME, token, {
     httpOnly: true,
-    secure: true,
+    secure: !isLocal,
     sameSite: "lax",
     path: "/",
     maxAge: 60 * 60 * 24 * 30,
@@ -60,5 +61,6 @@ export async function requireSession(): Promise<SessionPayload> {
 }
 
 export function clearSession() {
-  deleteCookie(COOKIE_NAME, { path: "/" });
+  const isLocal = process.env.NODE_ENV === "development" || !process.env.NODE_ENV;
+  deleteCookie(COOKIE_NAME, { path: "/", secure: !isLocal });
 }

@@ -149,7 +149,8 @@ export function Nav() {
             <>
               {(user.role === "provider" || user.role === "homeowner") && <NotificationBell />}
               <span className="hidden text-sm text-muted-foreground sm:inline">
-                {user.name} · <span className="capitalize font-medium text-foreground">{user.role}</span>
+                {user.name} ·{" "}
+                <span className="capitalize font-medium text-foreground">{user.role}</span>
               </span>
 
               <Button
